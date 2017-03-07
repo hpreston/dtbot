@@ -70,7 +70,6 @@ app = Flask(__name__)
 # Each key in the dictionary is a command
 # The value is the help message sent for the command
 commands = {
-    "/echo": "Reply back with the same message sent.",
     "/help": "Get help."
 }
 
@@ -214,10 +213,12 @@ def process_incoming_message(post_data):
     reply = ""
     # Take action based on command
     # If no command found, send help
-    if command in ["", "/help"]:
+    if command in ["/help"]:
         reply = send_help(post_data)
     elif command in ["/echo"]:
         reply = send_echo(message)
+    elif command in [""]: 
+        reply = trump_quote()
 
     # send_message_to_room(room_id, reply)
     spark.messages.create(roomId=room_id, markdown=reply)
@@ -229,13 +230,24 @@ def send_echo(incoming):
     message = extract_message("/echo", incoming.text)
     return message
 
+# Get a Trump Quote
+def trump_quote():
+    # Use urllib to get a random joke
+    import urllib2
+
+    response = urllib2.urlopen('https://api.whatdoestrumpthink.com/api/v1/quotes/random')
+    quote = json.loads(response.read())["message"]
+
+    # Return the text of the quote
+    return quote
+    
 
 # Construct a help message for users.
 def send_help(post_data):
-    message = "Hello!  "
-    message = message + "I understand the following commands:  \n"
-    for c in commands.items():
-        message = message + "* **%s**: %s \n" % (c[0], c[1])
+    message = "I give the greatest help... no one helps like I do."
+#     message = message + "I understand the following commands:  \n"
+#     for c in commands.items():
+#         message = message + "* **%s**: %s \n" % (c[0], c[1])
     return message
 
 
